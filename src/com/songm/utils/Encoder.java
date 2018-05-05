@@ -9,6 +9,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.MalformedURLException;
 
 import com.songm.ui.Main;
@@ -26,6 +28,9 @@ import info.monitorenter.cpdetector.io.UnicodeDetector;
  */
 public class Encoder {
 
+	private static int temp = 0; //统计已执行文件数
+	private static int fileCount; //总文件数
+	
 	/**
 	 * 文件编码转换 
 	 * @param filePath 文件路径
@@ -56,6 +61,13 @@ public class Encoder {
 				String e = getFileEncode(f);
 				String str = readFile(f, e);
 				fileWrite(path + File.separator + f.getName(), encode, str);
+				temp++;
+				int percent = (int) (BigDecimal.valueOf(temp).divide(BigDecimal.valueOf(fileCount), 2, RoundingMode.HALF_UP).doubleValue() * 100);
+				//System.out.println("总文件数："+fileCount+"|已执行："+temp);
+				Main.msg.append("已完成" + percent + "%\n");
+				Main.jTextArea.setText(Main.msg.toString());
+				//控制垂直滚动条到最后面
+				Main.scroll.getVerticalScrollBar().setValue(Main.scroll.getVerticalScrollBar().getMaximum());
 			}
 		}
 	}
@@ -84,6 +96,23 @@ public class Encoder {
 		}
 		return str;
 	}
+	
+	/**
+	 * 获取文件夹下文件个数
+	 * @param filepath
+	 * @return
+	 */
+	public static void getFileCount(String filepath) {  
+        File file = new File(filepath);  
+        File[] listfile = file.listFiles();  
+        for (int i = 0; i < listfile.length; i++) {  
+            if (!listfile[i].isDirectory()) {  
+                fileCount++;  
+            } else {  
+            	getFileCount(listfile[i].toString());  
+            }  
+        }
+    } 
 	
 	/**
 	 * 读取文件内容
@@ -142,6 +171,7 @@ public class Encoder {
 			e.printStackTrace();
 		} finally {
 			Main.msg.append(filePath + "  转换成功！\n");
+			Main.jTextArea.setText(Main.msg.toString());
 			try {
 				writer.close();
 				osw.close();

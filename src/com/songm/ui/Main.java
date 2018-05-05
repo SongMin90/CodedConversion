@@ -35,6 +35,7 @@ public class Main extends JFrame implements ActionListener {
 	private JTextField text01 = new JTextField(); // 需要转换的文件路径  
 	private JComboBox<String> comboBox0 = new JComboBox<String>(); // 转换后的编码格式下拉列表
 	private JButton button03 = new JButton("立即转换"); // 转换按钮
+	public static JScrollPane scroll = null;
     public static JTextArea jTextArea0 = new JTextArea(); // 显示转换进度
 	
 	private JButton button1 = new JButton("..."); // 需要转换的文件夹选择按钮
@@ -96,7 +97,7 @@ public class Main extends JFrame implements ActionListener {
 		JLabel label1 = new JLabel("需要转换的文件夹");
 		JLabel label2 = new JLabel("转后储存的文件夹");
 		JLabel label3 = new JLabel("转换后的编码格式");
-		JScrollPane scroll = new JScrollPane(jTextArea); // 滚动条
+		scroll = new JScrollPane(jTextArea); // 滚动条
 	    jTextArea.setEditable(false); // 设置不可写
 	    comboBox.addItem("UTF-8");
 	    comboBox.addItem("ASCII");
@@ -199,9 +200,15 @@ public class Main extends JFrame implements ActionListener {
 			String encode = comboBox.getSelectedItem().toString();
 			// 转换
 			if(!src.equals("") && !path.equals("")) {
-				Encoder.convertFolder(src, path, encode);
-				msg.append("\n完成！！！");
-				jTextArea.setText(msg.toString());
+				Encoder.getFileCount(src); //获取文件总个数
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						Encoder.convertFolder(src, path, encode);
+					}
+				}).start();
+				//msg.append("\n完成！！！");
+				//jTextArea.setText(msg.toString());
 			}
 		}
 	}
